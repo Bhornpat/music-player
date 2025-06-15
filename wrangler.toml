@@ -1,0 +1,7 @@
+name = "music-uploader"
+compatibility_date = "2024-06-01"
+
+[[r2_buckets]]
+binding = "MUSIC_BUCKET"
+bucket_name = "uwu-music"
+

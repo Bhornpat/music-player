@@ -1,3 +1,4 @@
+//จุดเริ่มต้นที่ Render <App /> ลง DOM
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
