@@ -58,7 +58,7 @@ function App() {
     return () => {
       audio.oncanplaythrough = null;
     };
-  }, [index, isPlaying]);
+  }, [index, isPlaying, current.url]);
 
 
   useEffect(() => {

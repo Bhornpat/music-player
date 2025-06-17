@@ -1,8 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders UWU Player heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const heading = screen.getByText(/uwu player/i);
+  expect(heading).toBeInTheDocument();
 });
+
+beforeAll(() => {
+  window.HTMLMediaElement.prototype.load = () => {}; // แค่ dummy
+  window.HTMLMediaElement.prototype.play = () => Promise.resolve();
+  window.HTMLMediaElement.prototype.pause = () => {};
+});
+
+
+
