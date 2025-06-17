@@ -1,7 +1,7 @@
 //Component หลักของแอป → เราจะวาง Music UI ที่นี่
 import { useRef, useState, useEffect } from "react";
-import { CirclePause, CirclePlay } from "lucide-react";
-import { FastForward, Rewind } from 'lucide-react';
+import { CirclePause, CirclePlay, FastForward, Rewind } from "lucide-react";
+
 
 
 
@@ -15,9 +15,12 @@ const musicList = [
   { title: "Pull Up", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/pullup.mp3", image: "https://tenor.com/view/anos-voldigoad-maou-gakuin-no-futekigousha-anime-one-eye-closed-eyes-gif-2170303314035264186.gif" },
   { title: "SWEET LIKE YOU", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/sweetlikeyou.mp3", image: "https://tenor.com/view/love-live-anime-sunshine-reviewing-watching-gif-9788056477457210869.gif" },
   { title: "Sugar Bomb!", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/sugerbomb.mp3", image: "https://tenor.com/view/maybe-gif-16539368050246956618.gif" },
-  { title: "Pastel Heart", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/pastel.mp3", image: "https://tenor.com/view/アトリ-atri-atri-anime-atri-my-dear-moments-atri-adaptation-gif-1179576086734926090.gif" },
+  { title: "Pastel Heart", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/pastel.mp3", image: "https://tenor.com/view/wink-anime-anime-wink-peace-peace-sign-gif-4591493253734534270.gif" },
   { title: "Happy☆Time", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/happytime.mp3", image: "https://tenor.com/view/anime-money-gif-2779446348632709038.gif" },
   { title: "Falling Into Blue", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/falling.mp3", image: "https://tenor.com/view/lain-lain-iwakura-serial-experiments-lain-wires-wired-gif-1481475804337586659.gif" },
+{ title: "In a Dream", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/InaDream.mp3", image: "https://tenor.com/view/blue-box-ao-no-hako-kano-chinatsu-chinatsu-kano-gif-14451281429002143138.gif" },
+{ title: "キラキラ", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/kirakira.mp3", image: "https://tenor.com/view/lucky-star-akira-wink-gif-16203206221511373475.gif" },
+{ title: "Time to go", artist: "K1n3ticNerdcore", url: "https://pub-57edb53024d4416c985d1a7ee882117a.r2.dev/Timetogo.mp3", image: "https://tenor.com/view/sad-anime-guy-lonely-anime-guy-winds-blow-by-anime-guy-sad-gif-13424156687993837135.gif" }
 ]
 
 function App() {
@@ -26,24 +29,36 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
-
   const current = musicList[index];
+
+
+   // Preload next song and image
+  useEffect(() => {
+    const next = musicList[(index + 1) % musicList.length];
+    const preloadAudio = new Audio();
+    preloadAudio.src = next.url;
+    preloadAudio.preload = "auto";
+    const preloadImg = new Image();
+    preloadImg.src = next.image;
+  }, [index]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const tryPlay = async () => {
-      try {
-        if (isPlaying) await audio.play();
-        else audio.pause();
-      } catch (err) {
-        console.warn("Playback failed:", err);
+    audio.src = current.url;
+    audio.load();
+
+    audio.oncanplaythrough = () => {
+      if (isPlaying) {
+        audio.play().catch(err => console.warn("Auto-play failed:", err));
       }
     };
-
-    tryPlay();
-  }, [isPlaying, index]);
+//บางครั้ง .play() เร็วเกินไป → ยังโหลดไม่พอ → error แต่ถ้าใช้ oncanplaythrough, เราจะ "รอจนแน่ใจว่าเล่นได้ยาว ๆ" แล้วค่อย play()
+    return () => {
+      audio.oncanplaythrough = null;
+    };
+  }, [index, isPlaying]);
 
 
   useEffect(() => {
@@ -68,13 +83,18 @@ function App() {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
-  const next = () => setIndex((index + 1) % musicList.length);
-  const prev = () => setIndex((index - 1 + musicList.length) % musicList.length);
-
+  const next = () => {
+    setIndex((index + 1) % musicList.length);
+    setCurrentTime(0);
+  };
+  const prev = () => {
+    setIndex((index - 1 + musicList.length) % musicList.length);
+    setCurrentTime(0);
+  };
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-700 text-white px-4"
     >
-      <h1 className="mb-8 text-5xl text-white font-bold font-uwu drop-shadow-[0_0_5px_#ffcbf2]">UWU Player</h1>
+      <h1 className="mb-9 text-4xl text-white font-bold font-uwu drop-shadow-[0_0_3px_#ffcbf2]">UWU Player</h1>
 
       <div className="relative bg-white/10 backdrop-blur-lg rounded-3xl p-6 w-full max-w-md shadow-2xl">
         {/* Title & Artist */}
