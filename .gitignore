@@ -31,4 +31,4 @@ src/UploadMusic.jsx
 *.mp3
 *.webp
 *.gif
-/images/
+/images/public/images/
