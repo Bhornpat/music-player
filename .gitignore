@@ -27,8 +27,4 @@ src/reportWebVitals.js
 src/App.test.js
 src/UploadMusic.jsx
 
-
-*.mp3
-*.webp
-*.gif
-/images/public/images/
+public/images
