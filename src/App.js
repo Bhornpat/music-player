@@ -40,28 +40,41 @@ function App() {
     preloadImg.src = next.image;
   }, [index]);
 
+  // Load audio only when index changes, Handle loading new audio
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.load();
+    audio.load();   // only reset on new song change 
    
     audio.oncanplaythrough = () => {
       if (isPlaying) {
         audio.play().catch(err => console.warn("Auto-play failed:", err));
       }
     };
-//บางครั้ง .play() เร็วเกินไป → ยังโหลดไม่พอ → error แต่ถ้าใช้ oncanplaythrough, เราจะ "รอจนแน่ใจว่าเล่นได้ยาว ๆ" แล้วค่อย play()
-    return () => {
+
+    return () => {                     //บางครั้ง .play() เร็วเกินไป → ยังโหลดไม่พอ → error แต่ถ้าใช้ oncanplaythrough, เราจะ "รอจนแน่ใจว่าเล่นได้ยาว ๆ" แล้วค่อย play()
       audio.oncanplaythrough = null;
     };
-  }, [index, isPlaying, current.url]);
+  }, [index]);
 
+// Handle pause / resume toggling (when user clicks play/pause)
+useEffect(() => {
+  const audio = audioRef.current;
+  if (!audio) return;
 
+  if (isPlaying) {
+    audio.play().catch(err => console.warn("Manual play failed:", err));
+  } else {
+    audio.pause();
+  }
+}, [isPlaying]);
+
+// Audio Time Listener + Duration
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
+ 
     const updateTime = () => setCurrentTime(audio.currentTime);
     const setAudioDuration = () => setDuration(audio.duration);
 
@@ -71,17 +84,25 @@ function App() {
     return () => {
       audio.removeEventListener("timeupdate", updateTime);
       audio.removeEventListener("loadedmetadata", setAudioDuration);
+      //This prevents duplicate listeners from stacking up and causing memory leaks 
+      // or multiple updates per event.
     };
   }, [index]);
 
+//Convert seconds to MM:SS //padStart(2, "0") 
+// ensures single-digit times become two-digit (e.g., 1 → 01)
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
+//Song Navigation
 const next = () => setIndex((index + 1) % musicList.length);
 const prev = () => setIndex((index - 1 + musicList.length) % musicList.length);
+//musicList = [A, B, C, D, E, ..., ..]; // length = 14  //index - 1: Go back one song
+//index = 2.  musicList.length = 5.  (index - 1 + 5) % 5 = (1 + 5) % 5 = 6 % 5 = 1
+
 
 
   return (
