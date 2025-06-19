@@ -56,6 +56,7 @@ function App() {
     return () => {                     //บางครั้ง .play() เร็วเกินไป → ยังโหลดไม่พอ → error แต่ถ้าใช้ oncanplaythrough, เราจะ "รอจนแน่ใจว่าเล่นได้ยาว ๆ" แล้วค่อย play()
       audio.oncanplaythrough = null;
     };
+// eslint-disable-next-line
   }, [index]);
 
 // Handle pause / resume toggling (when user clicks play/pause)
